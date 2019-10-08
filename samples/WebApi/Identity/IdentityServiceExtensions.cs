@@ -1,6 +1,7 @@
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace WebApi.Identity
 {
@@ -17,7 +18,7 @@ namespace WebApi.Identity
           o.IssuerUri = authority;
           o.Authentication.CookieAuthenticationScheme = "dummy";
         })
-        .AddDeveloperSigningCredential()
+        .AddDeveloperSigningCredential() // .AddSigningCredential(cert)
         .AddInMemoryPersistedGrants()
         .AddInMemoryIdentityResources(Config.GetIdentityResources())
         .AddInMemoryApiResources(Config.GetApiResources())
@@ -38,6 +39,7 @@ namespace WebApi.Identity
           o.Authority = authority;
           o.RequireHttpsMetadata = false;
           o.ApiName = "api1";
+          o.JwtValidationClockSkew = TimeSpan.Zero;
         });
 
       return services;

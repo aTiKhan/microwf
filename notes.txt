@@ -1,6 +1,26 @@
 notes:
-- rescedule a workflow instance in JobQueue again
-- api for JobQueue?!
+- new samples
+  - docker compose based
+    - microwf server
+    - microwf frontend
+      - consider nginx angular reverse proxy
+    - STS
+
+----------------------------------------------------------------------------------------------------
+self signed dev certificate:
+- http://www.waynethompson.com.au/blog/dotnet-dev-certs-https/
+- https://www.humankode.com/asp-net-core/develop-locally-with-https-self-signed-certificates-and-asp-net-core
+
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -out localhost.crt -config localhost.conf -passin pass:MyDevCert
+sudo openssl pkcs12 -export -out ubuntu_localhost.pfx -inkey localhost.key -in localhost.crt
+
+certutil -d sql:$HOME/.pki/nssdb -A -t "P,," -n "localhost" -i localhost.crt
+certutil -L -d sql:${HOME}/.pki/nssdb
+delete cert
+  - certutil -D -d sql:${HOME}/.pki/nssdb -n "localhost"
+
+Import existing pfx cert in ubuntu:
+- https://www.helloitsliam.com/2016/03/30/installing-certificate-pfx-into-debian-linux/
 
 ----------------------------------------------------------------------------------------------------
 EF commands:
@@ -10,12 +30,12 @@ dotnet ef migrations add <somename> -c DomainContext
 dotnet ef database update -c DomainContext
 dotnet ef database drop
 
-
+----------------------------------------------------------------------------------------------------
 Docker commands:
-- docker run -it --rm -p 5000:80 --name microwf tomware/microwf-playground:1.0.3
+- docker run -it --rm -p 5000:5000 --name microwf tomware/microwf-playground:1.8.0
 - docker push <image>
 
-
+----------------------------------------------------------------------------------------------------
 NuGet Commands:
 dotnet pack src/microwf.Core -c Release /p:PackageVersion=1.0.0 -o ./../../dist/nupkgs
 

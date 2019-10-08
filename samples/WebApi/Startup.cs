@@ -20,10 +20,6 @@ namespace WebApi
 
     public Startup(IConfiguration configuration)
     {
-      Log.Logger = new LoggerConfiguration().ReadFrom
-        .Configuration(configuration)
-        .CreateLogger();
-
       this.Configuration = configuration;
     }
 
@@ -40,7 +36,7 @@ namespace WebApi
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
-            .WithExposedHeaders("X-Pagination"); // see https://offering.solutions/blog/articles/2017/11/21/using-the-angular-material-paginator-with-aspnetcore-angular/#customercontroller
+            .WithExposedHeaders("X-Pagination");
         });
       })
         .AddMvc()
@@ -57,7 +53,9 @@ namespace WebApi
         .AddDbContext<DomainContext>(o => o.UseSqlite(connection));
 
       // Identity
-      var authority = this.Configuration["IdentityServer.Authority"];
+      var authority = this.GetAuthority();
+      // var cert = Program.GetCertificate(this.Configuration);
+      // services.AddIdentityServices(authority, cert);
       services.AddIdentityServices(authority);
 
       // Swagger
@@ -100,7 +98,11 @@ namespace WebApi
             await context.Response.WriteAsync("There was an error");
           });
         });
+
+        app.UseHsts();
       }
+
+      app.UseHttpsRedirection();
 
       app.UseFileServer();
 
@@ -109,6 +111,15 @@ namespace WebApi
       app.SubscribeMessageHandlers();
 
       app.UseMvcWithDefaultRoute();
+    }
+
+    private string GetAuthority()
+    {
+      var domainSettings = this.Configuration.GetSection("DomainSettings");
+      string schema = domainSettings.GetValue<string>("schema");
+      int port = domainSettings.GetValue<int>("port");
+
+      return $"{schema}://localhost:{port}";
     }
   }
 }

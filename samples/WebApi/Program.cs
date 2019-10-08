@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -37,23 +38,41 @@ namespace WebApi
     }
 
     public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-      WebHost
-        .CreateDefaultBuilder(args)
-        .UseConfiguration(new ConfigurationBuilder()
-          .SetBasePath(Directory.GetCurrentDirectory())
-          .AddJsonFile(
-            "appsettings.json",
-            optional: false,
-            reloadOnChange: true
-          )
-          .AddJsonFile(
-            $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json",
-            optional: true,
-            reloadOnChange: true
-          )
-          .Build())
-        .UseShutdownTimeout(TimeSpan.FromSeconds(10))
-        .UseStartup<Startup>()
-        .UseSerilog();
+        WebHost.CreateDefaultBuilder(args)
+            .UseUrls(GetUrls(GetConfig()))
+            .UseStartup<Startup>()
+            .UseSerilog((hostingContext, loggerConfiguration) =>
+              loggerConfiguration
+              .ReadFrom.Configuration(hostingContext.Configuration)
+              .Enrich.FromLogContext()
+              .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+        );
+    private static IConfigurationRoot GetConfig()
+    {
+      return new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddEnvironmentVariables()
+        .AddJsonFile(
+          "appsettings.json",
+          optional: false,
+          reloadOnChange: true
+        )
+        .AddJsonFile(
+          $"appsettings.Docker.json",
+          optional: true,
+          reloadOnChange: true
+        )
+        .Build();
+    }
+
+    private static string GetUrls(IConfiguration config)
+    {
+      var domainSettings = config.GetSection("DomainSettings");
+      var schema = domainSettings.GetValue<string>("Schema");
+      var host = domainSettings.GetValue<string>("Host");
+      var port = domainSettings.GetValue<int>("Port");
+
+      return $"{schema}://{host}:{port}";
+    }
   }
 }
