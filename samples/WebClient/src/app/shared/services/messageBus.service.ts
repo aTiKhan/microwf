@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector, Type } from '@angular/core';
 
 import { ServicesModule } from './services.module';
 import { MessageBase, IMessageSubscriber } from './models';
 
 @Injectable({
-  providedIn: ServicesModule
+  providedIn: ServicesModule // 'root'
 })
 export class MessageBus {
   private _subscribers: { [id: number]: IMessageSubscriber<MessageBase>; };
@@ -13,7 +13,7 @@ export class MessageBus {
     this._subscribers = {};
   }
 
-  public subsribe<T extends MessageBase>(subscriber: IMessageSubscriber<T>): number {
+  public subscribe<T extends MessageBase>(subscriber: IMessageSubscriber<T>): number {
     const id = new Date().valueOf();
     this._subscribers[id] = subscriber;
     return id;
@@ -36,7 +36,9 @@ export class MessageBus {
     });
   }
 
-  private getSubscribersForMessage<T extends MessageBase>(message: T): Array<IMessageSubscriber<T>> {
+  private getSubscribersForMessage<T extends MessageBase>(
+    message: T
+  ): Array<IMessageSubscriber<T>> {
     const subscribers = new Array<IMessageSubscriber<T>>();
 
     for (const key in this._subscribers) {
@@ -49,5 +51,21 @@ export class MessageBus {
     }
 
     return subscribers;
+  }
+}
+
+@Injectable({
+  providedIn: ServicesModule // 'root'
+})
+export class MessageBusSubscriberRegistrar {
+  public constructor(
+    private _messageBus: MessageBus,
+    private _injector: Injector
+  ) { }
+
+  public registerType<T extends IMessageSubscriber<MessageBase>>(
+    token: Type<T>
+  ): number {
+    return this._messageBus.subscribe(this._injector.get<T>(token));
   }
 }

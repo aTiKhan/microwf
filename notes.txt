@@ -1,10 +1,5 @@
 notes:
-- new samples
-  - docker compose based
-    - microwf server
-    - microwf frontend
-      - consider nginx angular reverse proxy
-    - STS
+- WorkItem Id as Guid
 
 ----------------------------------------------------------------------------------------------------
 self signed dev certificate:
@@ -36,10 +31,6 @@ Docker commands:
 - docker push <image>
 
 ----------------------------------------------------------------------------------------------------
-NuGet Commands:
-dotnet pack src/microwf.Core -c Release /p:PackageVersion=1.0.0 -o ./../../dist/nupkgs
-
-see: https://stackoverflow.com/questions/42797993/package-version-is-always-1-0-0-with-dotnet-pack
-
-----------------------------------------------------------------------------------------------------
-
+Global tools in docker container issue:
+- dotnet tool install --global dotnet-outdated-tool
+- export PATH="$PATH:/home/vscode/.dotnet/tools"

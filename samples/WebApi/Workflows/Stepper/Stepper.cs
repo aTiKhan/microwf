@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using tomware.Microwf.Engine;
+using tomware.Microwf.Domain;
 
 namespace WebApi.Workflows.Stepper
 {
   [Table("Stepper")]
-  public partial class Stepper : IEntityWorkflow
+  public partial class Stepper : IAssignableWorkflow
   {
     [Key]
     public int Id { get; set; }

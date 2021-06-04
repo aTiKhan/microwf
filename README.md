@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/thomasduft/microwf.svg?branch=master)](https://travis-ci.org/thomasduft/microwf) [![NuGet Release](https://img.shields.io/nuget/vpre/tomware.Microwf.AspNetCoreEngine.svg)](https://www.nuget.org/packages/tomware.Microwf.AspNetCoreEngine)
+[![build](https://github.com/thomasduft/microwf/workflows/build/badge.svg)](https://github.com/thomasduft/microwf/actions) [![NuGet Release](https://img.shields.io/nuget/vpre/tomware.Microwf.AspNetCoreEngine.svg)](https://www.nuget.org/packages/tomware.Microwf.AspNetCoreEngine) [![BuitlWithDot.Net shield](https://builtwithdot.net/project/351/microwf-a-simple-finite-state-machine-fsm-with-workflow-character-where-you-define-your-workflows-in-code./badge)](https://builtwithdot.net/project/351/microwf-a-simple-finite-state-machine-fsm-with-workflow-character-where-you-define-your-workflows-in-code.)
 
 # microwf
 A simple finite state machine (FSM) with workflow character where you define your workflows in code.
@@ -67,7 +67,7 @@ public class HolidayApprovalWorkflow : WorkflowDefinitionBase
 ```
 
 ### Running the samples
-Assuming you downloaded the sources and opened the directory with [VS Code](https://code.visualstudio.com/) you should be good to go! Ahh and of course you need [dot.net core](https://dotnet.microsoft.com/download) and [node.js](https://nodejs.org/en/) installed on your development environment.
+Assuming you downloaded the sources and opened the directory with [VS Code](https://code.visualstudio.com/) you should be good to go! Ahh and of course you need [.NET Core](https://dotnet.microsoft.com/download) and [node.js](https://nodejs.org/en/) installed on your development environment.
 
 #### Running the WebApi backend
 1. Open the integrated terminal in VS Code and type
@@ -75,18 +75,15 @@ Assuming you downloaded the sources and opened the directory with [VS Code](http
 
 That ensures you are able to build the dotnet related stuff!
 
-2. Hit "F5" and VS Code will do its magic! There are some VS Code tasks defined which will run the WebApi and open your default browser.
+2. Go to the VS Code Debug tab (Ctrl+Shift+D) and run the Security Token Server (STS = [IdentityServer](https://identityserver.io/)) project.
 
-#### Running the Angular WebClient frontend
-1. In the terminal change to the directory
-> cd samples/WebClient
+3. After the STS is running change the dropdown to the WebApi project and run it.
 
-2. Install all npm deps
-> npm install
+You should see now the login screen.
 
-3. Run the application
-> npm run start
+### Administrator Web UI
+A web interface allows an administrator to search for workflow instances and have a look into the current state.
 
-You should see now the login screen. 
+![Admin](https://www.tomware.ch/2018/11/27/sample-workflow-system-with-asp-net-core-angular-and-microwf-explained-new-ui/admin.gif)
 
 Happy poking!!

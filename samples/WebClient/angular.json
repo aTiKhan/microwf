@@ -36,10 +36,18 @@
               "src/styles.css",
               "src/assets/styles/app.less",
               {
-                "input": "./node_modules/font-awesome/css/font-awesome.css"
+                "input": "./node_modules/font-awesome/css/font-awesome.css",
+                "inject": true
               }
             ],
-            "scripts": []
+            "scripts": [],
+            "aot": false,
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -52,7 +60,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -63,6 +70,10 @@
                   "type": "initial",
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
                 }
               ]
             }
@@ -96,7 +107,8 @@
               "src/styles.css",
               "src/assets/styles/app.less",
               {
-                "input": "./node_modules/font-awesome/css/font-awesome.css"
+                "input": "./node_modules/font-awesome/css/font-awesome.css",
+                "inject": true
               }
             ],
             "scripts": [],
@@ -121,5 +133,8 @@
       }
     }
   },
-  "defaultProject": "webclient"
+  "defaultProject": "webclient",
+  "cli": {
+    "analytics": false
+  }
 }

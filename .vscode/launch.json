@@ -2,15 +2,24 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": ".NET Core Launch (WebApi)",
+      "name": "STS",
+      "type": "coreclr",
+      "request": "launch",
+      "console": "externalTerminal",
+      "preLaunchTask": "build-sts",
+      "program": "${workspaceRoot}/samples/STS/bin/Debug/net5.0/STS.dll",
+      "args": [],
+      "cwd": "${workspaceRoot}/samples/STS",
+      "stopAtEntry": false
+    },
+    {
+      "name": "WebApi",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceRoot}/samples/WebApi/bin/Debug/netcoreapp2.2/WebApi.dll",
+      "program": "${workspaceRoot}/samples/WebApi/bin/Debug/net5.0/WebApi.dll",
       "args": [],
       "cwd": "${workspaceRoot}/samples/WebApi",
-      // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
       "stopAtEntry": false,
       "launchBrowser": {
         "enabled": true,
@@ -34,55 +43,15 @@
       }
     },
     {
-      "name": ".NET Core Launch (Stepper API)",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceRoot}/samples/StepperApi/bin/Debug/netcoreapp2.2/StepperApi.dll",
-      "args": [],
-      "cwd": "${workspaceRoot}/samples/StepperApi",
-      // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-      "stopAtEntry": false,
-      "launchBrowser": {
-        "enabled": true,
-        "args": "${auto-detect-url}",
-        "windows": {
-          "command": "cmd.exe",
-          "args": "/C start ${auto-detect-url}"
-        },
-        "osx": {
-          "command": "open"
-        },
-        "linux": {
-          "command": "xdg-open"
-        }
-      },
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "sourceFileMap": {
-        "/Views": "${workspaceRoot}/Views"
-      }
-    },
-    {
-      "name": ".NET Core Launch (ConsoleClient)",
+      "name": "ConsoleClient",
       "type": "coreclr",
       "request": "launch",
       "console":"externalTerminal",
       "preLaunchTask": "build-ConsoleClient",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceRoot}/samples/ConsoleClient/bin/Debug/netcoreapp2.2/ConsoleClient.dll",
+      "program": "${workspaceRoot}/samples/ConsoleClient/bin/Debug/net5.0/ConsoleClient.dll",
       "args": [],
       "cwd": "${workspaceRoot}/samples/ConsoleClient",
-      // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
       "stopAtEntry": false
-    },
-    {
-      "name": ".NET Core Attach",
-      "type": "coreclr",
-      "request": "attach",
-      "processId": "${command:pickProcess}"
     }
   ]
 }

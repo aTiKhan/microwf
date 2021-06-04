@@ -1,11 +1,10 @@
-using IdentityModel;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
+using tomware.Microwf.Domain;
 
 namespace tomware.Microwf.Engine
 {
-
   public class IdentityUserContextService : IUserContextService
   {
     public static readonly string SYSTEM_USER = "SYSTEM";
@@ -37,7 +36,7 @@ namespace tomware.Microwf.Engine
         return context.User?.Identity?.Name;
       }
 
-      var clientIdClaim = context.User.Claims.First(c => c.Type == JwtClaimTypes.ClientId);
+      var clientIdClaim = context.User.Claims.First(c => c.Type == "client_id");
       if (clientIdClaim != null)
       {
         return clientIdClaim.Value;

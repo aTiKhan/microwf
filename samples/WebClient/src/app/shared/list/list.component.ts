@@ -46,10 +46,10 @@ export class TwTemplateDirective {
   selector: 'tw-list',
   template: `
   <div class="list">
+    <ng-content select="tw-header"></ng-content>
     <div class="list--loading" *ngIf="loading">
       <tw-icon name="spinner" [spin]="true"></tw-icon>
     </div>
-    <ng-content select="tw-header"></ng-content>
     <div class="list__content">
       <ng-template ngFor let-rowData let-rowIndex="index" [ngForOf]="rows">
         <ng-container
@@ -82,10 +82,10 @@ export class ListComponent implements OnInit, AfterContentInit {
     }
   }
 
-  @ContentChild(HeaderComponent, {static: false})
+  @ContentChild(HeaderComponent)
   public header;
 
-  @ContentChild(FooterComponent, {static: false})
+  @ContentChild(FooterComponent)
   public footer;
 
   @ContentChildren(TwTemplateDirective)

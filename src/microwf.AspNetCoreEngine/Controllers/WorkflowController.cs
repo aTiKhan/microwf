@@ -1,127 +1,96 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
-using tomware.Microbus.Core;
+using tomware.Microwf.Domain;
 
 namespace tomware.Microwf.Engine
 {
   [Authorize]
+  [ProducesResponseType(StatusCodes.Status401Unauthorized)]
   [Route("api/workflow")]
-  public class WorkflowController : Controller
+  public class WorkflowController : ControllerBase
   {
-    private readonly IWorkflowService _service;
-    private readonly IMessageBus _messageBus;
+    private readonly IWorkflowControllerService service;
 
-    public WorkflowController(
-      IWorkflowService service,
-      IMessageBus messageBus
-    )
+    public WorkflowController(IWorkflowControllerService service)
     {
-      _service = service;
-      _messageBus = messageBus;
+      this.service = service;
     }
 
     [HttpGet()]
     [Authorize(Constants.MANAGE_WORKFLOWS_POLICY)]
-    [ProducesResponseType(typeof(PaginatedList<WorkflowViewModel>), 200)]
+    [ProducesResponseType(typeof(PaginatedList<WorkflowViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<PaginatedList<WorkflowViewModel>>> GetWorkflows(
       [FromQuery] WorkflowSearchPagingParameters pagingParameters
     )
     {
-      PaginatedList<WorkflowViewModel> result
-        = await _service.GetWorkflowsAsync(pagingParameters);
+      var result = await this.service.GetWorkflowsAsync(pagingParameters);
 
-      AddXPagination(pagingParameters, result);
+      this.AddXPagination(pagingParameters, result);
 
       return Ok(result);
     }
 
     [HttpGet("{id}")]
     [Authorize(Constants.MANAGE_WORKFLOWS_POLICY)]
-    [ProducesResponseType(typeof(WorkflowViewModel), 200)]
+    [ProducesResponseType(typeof(WorkflowViewModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<WorkflowViewModel>> Get(int id)
     {
-      var result = await _service.GetAsync(id);
+      var result = await this.service.GetAsync(id);
 
       return Ok(result);
     }
 
-    [HttpPost("trigger")]
-    [Authorize(Constants.MANAGE_WORKFLOWS_POLICY)]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(404)]
-    public async Task<ActionResult> Trigger([FromBody]WorkflowTriggerViewModel model)
-    {
-      if (model == null) return BadRequest();
-      if (!this.ModelState.IsValid) return BadRequest(this.ModelState);
-
-      var workflow = await this._service.GetAsync(model.Id);
-      if (workflow == null) return NotFound();
-
-      await _messageBus.PublishAsync(WorkItemMessage.Create(
-         model.Trigger,
-         workflow.CorrelationId,
-         workflow.Type
-       ));
-
-      return NoContent();
-    }
-
     [HttpGet("{id}/history")]
     [Authorize(Constants.MANAGE_WORKFLOWS_POLICY)]
-    [ProducesResponseType(typeof(IEnumerable<WorkflowHistory>), 200)]
-    public async Task<ActionResult<IEnumerable<WorkflowHistory>>> GetHistory(int id)
+    [ProducesResponseType(typeof(IEnumerable<WorkflowHistoryViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IEnumerable<WorkflowHistoryViewModel>>> GetHistory(int id)
     {
-      var result = await _service.GetHistoryAsync(id);
+      var result = await this.service.GetHistoryAsync(id);
 
       return Ok(result);
     }
 
     [HttpGet("{id}/variables")]
     [Authorize(Constants.MANAGE_WORKFLOWS_POLICY)]
-    [ProducesResponseType(typeof(IEnumerable<WorkflowVariable>), 200)]
-    public async Task<ActionResult<IEnumerable<WorkflowVariable>>> GetVariables(int id)
+    [ProducesResponseType(typeof(IEnumerable<WorkflowVariableViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IEnumerable<WorkflowVariableViewModel>>> GetVariables(int id)
     {
-      var result = await _service.GetVariablesAsync(id);
-
-      return Ok(result);
-    }
-
-    [HttpGet("instance/{type}/{correlationId}")]
-    [ProducesResponseType(typeof(WorkflowViewModel), 200)]
-    public async Task<ActionResult<WorkflowViewModel>> GetInstance(string type, int correlationId)
-    {
-      WorkflowViewModel result = await _service.GetInstanceAsync(type, correlationId);
+      var result = await this.service.GetVariablesAsync(id);
 
       return Ok(result);
     }
 
     [HttpGet("definitions")]
-    [ProducesResponseType(typeof(IEnumerable<WorkflowDefinitionViewModel>), 200)]
-    public ActionResult<IEnumerable<WorkflowDefinitionViewModel>> GetWorkflowDefinitions()
+    [ProducesResponseType(typeof(IEnumerable<WorkflowDefinitionViewModel>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<WorkflowDefinitionViewModel>>> GetWorkflowDefinitions()
     {
-      var result = _service.GetWorkflowDefinitions();
+      var result = await this.service.GetWorkflowDefinitionsAsync();
 
       return Ok(result);
     }
 
     [HttpGet("dot/{type}")]
-    [ProducesResponseType(typeof(string), 200)]
-    public ActionResult<string> Dot(string type)
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    public async Task<ActionResult<string>> Dot(string type)
     {
-      var result = _service.Dot(type);
+      var result = await this.service.DotAsync(type);
 
       return Ok(result);
     }
 
     [HttpGet("dotwithhistory/{type}/{correlationId}")]
-    [ProducesResponseType(typeof(WorkflowViewModel), 200)]
-    public async Task<ActionResult<WorkflowViewModel>> DotWithHistory(string type, int correlationId)
+    [ProducesResponseType(typeof(WorkflowDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<WorkflowDto>> DotWithHistory(string type, int correlationId)
     {
-      var result = await _service.DotWithHistoryAsync(type, correlationId);
+      var result = await this.service.DotWithHistoryAsync(type, correlationId);
 
       return Ok(result);
     }
@@ -139,7 +108,7 @@ namespace tomware.Microwf.Engine
         totalPages = result.TotalPages
       };
 
-      Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
+      this.Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
     }
   }
 }

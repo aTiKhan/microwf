@@ -3,7 +3,9 @@ import {
   HostBinding
 } from '@angular/core';
 
-import { AuthService } from '../../shared/services/auth.service';
+import { OAuthService } from 'angular-oauth2-oidc';
+
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'tw-sidebar',
@@ -30,9 +32,15 @@ import { AuthService } from '../../shared/services/auth.service';
           Admin
           <ul>
             <li routerLinkActive="active" class="menu__item">
-              <a routerLink="/admin">
+              <a routerLink="/admin/workflows">
                 <tw-icon name="arrow-right"></tw-icon>
                 Workflows
+              </a>
+            </li>
+            <li routerLinkActive="active" class="menu__item">
+              <a routerLink="/admin/queue">
+                <tw-icon name="cog"></tw-icon>
+                Jobqueue
               </a>
             </li>
           </ul>
@@ -59,19 +67,20 @@ export class SidebarComponent {
   public classlist = this.getClassList();
 
   public get userName(): string {
-    return this._authService.username;
+    return this.authService.userName;
   }
 
   public get isAdmin(): boolean {
-    return this._authService.hasClaim('workflow_admin');
+    return this.authService.hasClaim('workflow_admin');
   }
 
   public constructor(
-    private _authService: AuthService
+    private oauthService: OAuthService,
+    private authService: UserService
   ) { }
 
   public logout(): void {
-    this._authService.logout();
+    this.oauthService.logOut();
   }
 
   public toggle(): void {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using tomware.Microwf.Core;
-using tomware.Microwf.Engine;
+using tomware.Microwf.Domain;
 using WebApi.Domain;
 using WebApi.Common;
 
@@ -28,12 +28,12 @@ namespace WebApi.Workflows.Issue
   public class IssueService : IIssueService
   {
     private readonly DomainContext _context;
-    private readonly IWorkflowEngine _workflowEngine;
+    private readonly IWorkflowEngineService _workflowEngine;
     private readonly IUserContextService _userContext;
 
     public IssueService(
       DomainContext context,
-      IWorkflowEngine workflowEngine,
+      IWorkflowEngineService workflowEngine,
       IUserContextService userContext
     )
     {
@@ -42,13 +42,9 @@ namespace WebApi.Workflows.Issue
       this._userContext = userContext;
     }
 
-    public Task<IEnumerable<string>> GetAssigneesAsync()
+    public async Task<IEnumerable<string>> GetAssigneesAsync()
     {
-      var assignees = WebApi.Identity.Config.GetUsers()
-        .Where(u => u.Username != "bob")
-        .Select(u => u.Username);
-
-      return Task.FromResult(assignees);
+      return await Task.FromResult(new string[] { "alice", "admin" });
     }
 
     public async Task<IWorkflowResult<IssueViewModel>> NewAsync()

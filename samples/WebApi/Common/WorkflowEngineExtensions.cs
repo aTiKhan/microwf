@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using tomware.Microwf.Core;
-using tomware.Microwf.Engine;
+using tomware.Microwf.Domain;
 
 namespace WebApi.Common
 {
   public static class WorkflowServiceExtension
   {
     public static async Task<WorkflowTriggerInfo> ToWorkflowTriggerInfo(
-      this IWorkflowEngine workflowEngine,
+      this IWorkflowEngineService workflowEngine,
       IWorkflow instance,
       TriggerResult result = null)
     {

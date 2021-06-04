@@ -1,84 +1,84 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
+using tomware.Microwf.Domain;
 
 namespace tomware.Microwf.Engine
 {
   [Authorize]
+  [ProducesResponseType(StatusCodes.Status401Unauthorized)]
   [Route("api/jobqueue")]
-  public class JobQueueController : Controller
+  public class JobQueueController : ControllerBase
   {
-    private readonly IJobQueueService _service;
-    private readonly IWorkItemService _workItemService;
+    private readonly IJobQueueControllerService service;
 
-    public JobQueueController(
-      IJobQueueService service,
-      IWorkItemService workItemService
-    )
+    public JobQueueController(IJobQueueControllerService service)
     {
-      _service = service;
-      _workItemService = workItemService;
+      this.service = service;
     }
 
     [HttpGet("snapshot")]
     [Authorize(Constants.MANAGE_WORKFLOWS_POLICY)]
-    [ProducesResponseType(typeof(IEnumerable<WorkItem>), 200)]
-    public ActionResult<IEnumerable<WorkItem>> GetSnapshot()
+    [ProducesResponseType(typeof(IEnumerable<Domain.WorkItemDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IEnumerable<Domain.WorkItemDto>>> GetSnapshot()
     {
-      var result = _service.GetSnapshot();
+      var result = await this.service.GetSnapshotAsync();
 
       return Ok(result);
     }
 
     [HttpGet("upcommings")]
     [Authorize(Constants.MANAGE_WORKFLOWS_POLICY)]
-    [ProducesResponseType(typeof(PaginatedList<WorkItem>), 200)]
-    public async Task<ActionResult<IEnumerable<WorkItem>>> GetUpcommings(
+    [ProducesResponseType(typeof(PaginatedList<WorkItemViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<PaginatedList<WorkItemViewModel>>> GetUpcommings(
       [FromQuery] PagingParameters pagingParameters
     )
     {
-      PaginatedList<WorkItem> result
-        = await _workItemService.GetUpCommingsAsync(pagingParameters);
+      var result = await this.service.GetUpCommingsAsync(pagingParameters);
 
-      AddXPagination(pagingParameters, result);
+      this.AddXPagination(pagingParameters, result);
 
       return Ok(result);
     }
 
     [HttpGet("failed")]
     [Authorize(Constants.MANAGE_WORKFLOWS_POLICY)]
-    [ProducesResponseType(typeof(PaginatedList<WorkItem>), 200)]
-    public async Task<ActionResult<IEnumerable<WorkItem>>> GetFailed(
+    [ProducesResponseType(typeof(PaginatedList<WorkItemViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<PaginatedList<WorkItemViewModel>>> GetFailed(
       [FromQuery] PagingParameters pagingParameters
     )
     {
-      PaginatedList<WorkItem> result
-        = await _workItemService.GetFailedAsync(pagingParameters);
+      var result = await this.service.GetFailedAsync(pagingParameters);
 
-      AddXPagination(pagingParameters, result);
+      this.AddXPagination(pagingParameters, result);
 
       return Ok(result);
     }
 
     [HttpPost("reschedule")]
     [Authorize(Constants.MANAGE_WORKFLOWS_POLICY)]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(400)]
-    public async Task<ActionResult> Reschedule([FromBody]WorkItemViewModel model)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult> Reschedule([FromBody] WorkItemViewModel model)
     {
       if (model == null) return BadRequest();
       if (!this.ModelState.IsValid) return BadRequest(this.ModelState);
 
-      await this._workItemService.Reschedule(model);
+      await this.service.Reschedule(model);
 
       return NoContent();
     }
 
     private void AddXPagination(
       PagingParameters pagingParameters,
-      PaginatedList<WorkItem> result
+      PaginatedList<WorkItemViewModel> result
     )
     {
       var paginationMetadata = new
@@ -89,7 +89,7 @@ namespace tomware.Microwf.Engine
         totalPages = result.TotalPages
       };
 
-      Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
+      this.Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
     }
   }
 }

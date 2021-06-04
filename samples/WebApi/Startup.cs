@@ -1,16 +1,19 @@
+using System;
+using System.Linq;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Serilog;
-using tomware.Microwf.Engine;
 using WebApi.Domain;
 using WebApi.Extensions;
-using WebApi.Identity;
 
 namespace WebApi
 {
@@ -25,8 +28,6 @@ namespace WebApi
 
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddOptions();
-
       services.AddCors(o =>
       {
         o.AddPolicy("AllowAllOrigins", builder =>
@@ -38,88 +39,107 @@ namespace WebApi
             .AllowCredentials()
             .WithExposedHeaders("X-Pagination");
         });
-      })
-        .AddMvc()
-        .AddJsonOptions(o =>
-          o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-        );
+      });
+
       services.AddRouting(o => o.LowercaseUrls = true);
 
-      services.AddAuthorization();
+      var authority = this.Configuration["Authority"];
+
+      services
+       .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+       .AddJwtBearer(opt =>
+       {
+         opt.Authority = authority;
+         opt.Audience = "api1";
+         opt.RequireHttpsMetadata = false;
+         opt.IncludeErrorDetails = true;
+         opt.SaveToken = true;
+         opt.TokenValidationParameters = new TokenValidationParameters()
+         {
+           ValidateIssuer = true,
+           ValidateAudience = false,
+           NameClaimType = "name",
+          //  RoleClaimType = "role" // role based policies will not work if uncommented!
+         };
+       });
 
       var connection = this.Configuration["ConnectionString"];
-      services
-        .AddEntityFrameworkSqlite()
-        .AddDbContext<DomainContext>(o => o.UseSqlite(connection));
-
-      // Identity
-      var authority = this.GetAuthority();
-      // var cert = Program.GetCertificate(this.Configuration);
-      // services.AddIdentityServices(authority, cert);
-      services.AddIdentityServices(authority);
+      services.AddDbContext<DomainContext>(o => o.UseSqlite(connection));
 
       // Swagger
       services.AddSwaggerDocumentation();
 
       // Api services
       services.AddApiServices<DomainContext>(this.Configuration);
+
+      services.AddHttpContextAccessor();
+      services.AddControllers()
+        .AddNewtonsoftJson(opt =>
+        {
+          opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        });
     }
 
     public void Configure(
       IApplicationBuilder app,
-      IHostingEnvironment env,
-      ILoggerFactory loggerFactory
+      IWebHostEnvironment env
     )
     {
-      loggerFactory.AddSerilog();
-
       if (env.IsDevelopment())
       {
         app.UseCors("AllowAllOrigins");
         app.UseSwaggerDocumentation();
 
+        IdentityModelEventSource.ShowPII = true;
+
         app.UseDeveloperExceptionPage();
       }
       else
       {
-        app.UseExceptionHandler(errorApp =>
-        {
-          errorApp.Run(async context =>
-          {
-            context.Response.StatusCode = 500;
-            context.Response.ContentType = "text/plain";
-            var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
-            if (errorFeature != null)
-            {
-              var logger = loggerFactory.CreateLogger("Global exception logger");
-              logger.LogError(500, errorFeature.Error, errorFeature.Error.Message);
-            }
-
-            await context.Response.WriteAsync("There was an error");
-          });
-        });
-
-        app.UseHsts();
+        app.UseExceptionHandler("/Error");
       }
 
-      app.UseHttpsRedirection();
+      ConsiderSpaRoutes(app);
 
-      app.UseFileServer();
+      app.UseDefaultFiles();
+      app.UseStaticFiles();
 
-      app.UseIdentityServer();
+      app.UseSerilogRequestLogging();
 
-      app.SubscribeMessageHandlers();
+      app.UseRouting();
 
-      app.UseMvcWithDefaultRoute();
+      app.UseAuthentication();
+      app.UseAuthorization();
+
+      app.UseEndpoints(endpoints =>
+      {
+        endpoints.MapControllers();
+      });
     }
 
-    private string GetAuthority()
+    private static void ConsiderSpaRoutes(IApplicationBuilder app)
     {
-      var domainSettings = this.Configuration.GetSection("DomainSettings");
-      string schema = domainSettings.GetValue<string>("schema");
-      int port = domainSettings.GetValue<int>("port");
+      var angularRoutes = new[]
+      {
+        "/home",
+        "/dispatch",
+        "/admin",
+        "/issue",
+        "/dispatch",
+        "/forbidden"
+      };
 
-      return $"{schema}://localhost:{port}";
+      app.Use(async (context, next) =>
+      {
+        if (context.Request.Path.HasValue
+          && null != angularRoutes.FirstOrDefault(
+            (ar) => context.Request.Path.Value.StartsWith(ar, StringComparison.OrdinalIgnoreCase)))
+        {
+          context.Request.Path = new PathString("/");
+        }
+
+        await next();
+      });
     }
   }
 }
