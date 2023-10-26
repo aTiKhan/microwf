@@ -1,11 +1,7 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 using tomware.Microwf.Core;
 using tomware.Microwf.Domain;
 using tomware.Microwf.Engine;
 using tomware.Microwf.Infrastructure;
-using WebApi.Domain;
 using WebApi.Workflows.Holiday;
 using WebApi.Workflows.Issue;
 using WebApi.Workflows.Stepper;
@@ -42,8 +38,6 @@ namespace WebApi.Extensions
       services.AddTransient<IIssueService, IssueService>();
       services.AddTransient<IStepperService, StepperService>();
 
-      services.AddScoped<IMigrationService, MigrationService>();
-
       return services;
     }
 
@@ -78,7 +72,7 @@ namespace WebApi.Extensions
     {
       return new List<UserWorkflowMapping> {
         new UserWorkflowMapping {
-          UserName = "admin",
+          UserName = "Admin",
           WorkflowDefinitions = new List<string> {
             HolidayApprovalWorkflow.TYPE,
             IssueTrackingWorkflow.TYPE,
@@ -86,7 +80,7 @@ namespace WebApi.Extensions
           }
         },
         new UserWorkflowMapping {
-          UserName = "alice",
+          UserName = "Alice",
           WorkflowDefinitions = new List<string> {
             HolidayApprovalWorkflow.TYPE,
             IssueTrackingWorkflow.TYPE,
@@ -94,7 +88,7 @@ namespace WebApi.Extensions
           }
         },
         new UserWorkflowMapping {
-          UserName = "bob",
+          UserName = "Bob",
           WorkflowDefinitions = new List<string> {
             HolidayApprovalWorkflow.TYPE,
             StepperWorkflow.TYPE

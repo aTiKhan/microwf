@@ -21,18 +21,18 @@ export class AppComponent implements OnInit {
   }
 
   private async configure() {
-    const issuer = 'https://localhost:5000';
+    const issuer = 'https://localhost:5001/';
 
     this.oauthService.configure({
-      clientId: 'frontend',
+      clientId: 'spa_webclient',
       issuer: issuer,
       redirectUri: isDevMode()
         ? 'http://localhost:4200'
         : window.location.origin,
       responseType: 'code',
-      scope: 'openid profile api1',
-      loginUrl: issuer + '/account/login',
-      logoutUrl: issuer + '/account/logout',
+      scope: 'openid profile webapi_scope',
+      loginUrl: issuer + '/login',
+      logoutUrl: issuer + '/logout',
       requireHttps: false,
       showDebugInformation: true
     });

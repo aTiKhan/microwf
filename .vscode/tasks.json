@@ -2,17 +2,21 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build-sts",
+      "label": "build:targets",
       "command": "dotnet",
       "type": "process",
       "args": [
         "build",
-        "${workspaceRoot}/samples/STS/STS.csproj"
+        "${workspaceFolder}/build/targets.csproj"
       ],
-      "problemMatcher": "$msCompile"
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     },
     {
-      "label": "build",
+      "label": "build:WebApi",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -26,7 +30,7 @@
       }
     },
     {
-      "label": "build-ConsoleClient",
+      "label": "build:ConsoleClient",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -38,6 +42,24 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "build:restore-tools",
+      "command": "./build.sh",
+      "type": "shell",
+      "args": [
+        "restore-tools"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build:test",
+      "command": "./build.sh",
+      "type": "shell",
+      "args": [
+        "test"
+      ],
+      "problemMatcher": "$msCompile"
     },
     {
       "label": "test",
@@ -53,6 +75,52 @@
       "problemMatcher": "$msCompile",
       "group": {
         "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "dev:be-watch",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceRoot}/samples/WebApi/WebApi.csproj",
+        "--environment",
+        "Development",
+        "--urls",
+        "https://localhost:5001",
+      ],
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/samples/WebApi/"
+      }
+    },
+    {
+      "label": "dev:fe-start",
+      "type": "npm",
+      "script": "start",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}/samples/WebClient/"
+      }
+    },
+    // Compound tasks
+    {
+      "label": "dev:be-fe 🚀",
+      "icon": {
+        "id": "play",
+        "color": "terminal.ansiGreen"
+      },
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "dev:be-watch",
+        "dev:fe-start"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
         "isDefault": true
       }
     }

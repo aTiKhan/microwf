@@ -2,56 +2,48 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "STS",
+      "name": "build",
       "type": "coreclr",
       "request": "launch",
-      "console": "externalTerminal",
-      "preLaunchTask": "build-sts",
-      "program": "${workspaceRoot}/samples/STS/bin/Debug/net5.0/STS.dll",
-      "args": [],
-      "cwd": "${workspaceRoot}/samples/STS",
-      "stopAtEntry": false
+      "preLaunchTask": "build:targets",
+      "program": "${workspaceFolder}/build/bin/Debug/net7.0/targets.dll",
+      "args": [
+        "pack --version=0.0.2&key=1234567890"
+      ],
+      "cwd": "${workspaceFolder}/build",
+      "stopAtEntry": false,
+      "console": "integratedTerminal"
     },
     {
       "name": "WebApi",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build",
-      "program": "${workspaceRoot}/samples/WebApi/bin/Debug/net5.0/WebApi.dll",
-      "args": [],
+      "preLaunchTask": "build:WebApi",
+      "program": "${workspaceRoot}/samples/WebApi/bin/Debug/net7.0/WebApi.dll",
+      "args": [
+        "--urls",
+        "https://localhost:5001"
+      ],
       "cwd": "${workspaceRoot}/samples/WebApi",
       "stopAtEntry": false,
-      "launchBrowser": {
-        "enabled": true,
-        "args": "${auto-detect-url}",
-        "windows": {
-          "command": "cmd.exe",
-          "args": "/C start ${auto-detect-url}"
-        },
-        "osx": {
-          "command": "open"
-        },
-        "linux": {
-          "command": "xdg-open"
-        }
-      },
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "sourceFileMap": {
         "/Views": "${workspaceRoot}/Views"
-      }
+      },
+      "console": "integratedTerminal",
     },
     {
       "name": "ConsoleClient",
       "type": "coreclr",
       "request": "launch",
-      "console":"externalTerminal",
-      "preLaunchTask": "build-ConsoleClient",
-      "program": "${workspaceRoot}/samples/ConsoleClient/bin/Debug/net5.0/ConsoleClient.dll",
+      "preLaunchTask": "build:ConsoleClient",
+      "program": "${workspaceRoot}/samples/ConsoleClient/bin/Debug/net7.0/ConsoleClient.dll",
       "args": [],
       "cwd": "${workspaceRoot}/samples/ConsoleClient",
-      "stopAtEntry": false
+      "stopAtEntry": false,
+      "console": "integratedTerminal"
     }
   ]
 }
