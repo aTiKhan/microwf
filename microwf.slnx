@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/build/">
+    <Project Path="build/targets.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/ConsoleClient/ConsoleClient.csproj" />
+    <Project Path="samples/WebApi/WebApi.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/microwf.AspNetCoreEngine/microwf.AspNetCoreEngine.csproj" />
+    <Project Path="src/microwf.Core/microwf.Core.csproj" />
+    <Project Path="src/microwf.Domain/microwf.Domain.csproj" />
+    <Project Path="src/microwf.Infrastructure/microwf.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/microwf.Tests.csproj" />
+  </Folder>
+</Solution>

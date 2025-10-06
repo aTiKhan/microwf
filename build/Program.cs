@@ -5,7 +5,7 @@ using McMaster.Extensions.CommandLineUtils;
 using static Bullseye.Targets;
 using static SimpleExec.Command;
 
-const string Solution = "microwf.sln";
+const string Solution = "microwf.slnx";
 IList<string> packableProjects = new List<string>{
   "microwf.Core",
   "microwf.Domain",
