@@ -3,22 +3,25 @@
   "isRoot": true,
   "tools": {
     "tomware.releasy": {
-      "version": "0.6.0",
+      "version": "0.12.1",
       "commands": [
         "releasy"
-      ]
+      ],
+      "rollForward": false
     },
     "dotnet-outdated-tool": {
-      "version": "4.5.0",
+      "version": "4.6.7",
       "commands": [
         "dotnet-outdated"
-      ]
+      ],
+      "rollForward": false
     },
     "dotnet-ef": {
-      "version": "7.0.2",
+      "version": "9.0.2",
       "commands": [
         "dotnet-ef"
-      ]
+      ],
+      "rollForward": false
     }
   }
 }

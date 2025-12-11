@@ -1,11 +1,22 @@
 # Changelog
 
+## [3.3.0] - 2025-02-22
+
+### Added
+
+- Added support for .NET 9.0.
+
+## [3.2.0] - 2024-01-10
+
+### Added
+
+- added support for net8.0
+
 ## [3.1.1] - 2022-11-28
 
 ### Fixed
 
 - fixed wrong evaluation of release version in deploy workflow
-
 
 ## [3.1.0] - 2022-11-28
 
